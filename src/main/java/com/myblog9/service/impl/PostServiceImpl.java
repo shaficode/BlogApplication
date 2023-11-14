@@ -3,11 +3,17 @@ package com.myblog9.service.impl;
 import com.myblog9.entity.Post;
 import com.myblog9.exception.ResourceNotFound;
 import com.myblog9.payload.PostDto;
+import com.myblog9.payload.PostResponse;
 import com.myblog9.repository.PostRepository;
 import com.myblog9.service.PostService;
-import com.sun.xml.bind.v2.schemagen.XmlSchemaGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -59,6 +65,25 @@ public class PostServiceImpl implements PostService {
         return dto;
 
         //return null;
+    }
+
+    @Override
+    public PostResponse getAllPosts(int pageNo, int pageSize, String sortBy, String sortDir) {
+
+       Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+       Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<Post> pagePostObjects = postRepo.findAll(pageable);
+        List<Post> posts = pagePostObjects.getContent();
+        List<PostDto> dtos = posts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+
+        PostResponse response = new PostResponse();
+        response.setDto(dtos);
+        response.setPageNo(pagePostObjects.getNumber());
+        response.setTotalPages(pagePostObjects.getTotalPages());
+        response.setLastPage(pagePostObjects.isLast());
+        response.setPageSize(pagePostObjects.getSize());
+
+        return response;
     }
 
     Post mapToEntity(PostDto postDto) {
