@@ -1,3 +1,3 @@
 # BlogApplication
-This application is developed using Java, Spring Boot, Hibernate, and Spring Security.
-Java 8 is used in this project.
+This application is developed using Java 8, Spring Boot, Hibernate, and Spring Security.
+
